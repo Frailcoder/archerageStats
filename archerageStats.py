@@ -431,7 +431,7 @@ def main_log_builder(input_lines) -> LogStats:
         else:
             n += 1
 
-    def sort_dmg_event(event_list) -> tuple[dict, dict]:
+    def sort_dmg_event(event_list) -> "tuple[dict, dict]":
         """Sorts events as given by event_list, obtained from sort_log_events()'s dmg_event.
         
         Returns two sorted dictionaries: player and dmg total, player and dmg taken total.
@@ -474,7 +474,7 @@ def main_log_builder(input_lines) -> LogStats:
         return (damage_dealt, damage_received)
 
 
-    def sort_heal_event(event_list) -> tuple[dict, dict]: # for healing-related sources, especially to ensure healing and selfhealing is separated.
+    def sort_heal_event(event_list) -> "tuple[dict, dict]": # for healing-related sources, especially to ensure healing and selfhealing is separated.
         """Sorts events as given by event_list, obtained from sort_log_events()'s heal_event.
         
         Returns two sorted dictionaries: player and heal total, player and item/buffs self-healing total
@@ -528,7 +528,7 @@ def main_log_builder(input_lines) -> LogStats:
         
         return (healing_dealt, healing_self_items)
 
-    def sort_buff_debuff_event(event_list) -> tuple[dict, dict, int]:
+    def sort_buff_debuff_event(event_list) -> "tuple[dict, dict, int]":
         """Sorts events as given by event_list, obtained from sort_log_events()'s buff_debuff_event.
         
         Returns two dictionaries in format {player : {song : timeinint, song1 : timeinint, ...}, ...}.
@@ -619,7 +619,7 @@ def main_log_builder(input_lines) -> LogStats:
         
         return tracked_songs_total_buffs, tracked_songs_total_debuffs, log_elapsed_time
 
-    def sort_skill_cast_event(event_list) -> tuple[dict, dict]:
+    def sort_skill_cast_event(event_list) -> "tuple[dict, dict]":
         """Return two sorted dicts. First is all skills used per player, second is all players that used a skill."""
         player_skills = {}
         skill_players = {}
@@ -869,7 +869,7 @@ def user_prompt_dynamic_create_plot_inner(dictionary, dict_name=""):
             continue
 
 
-def user_prompt_timeframe(file_dir) -> list[str] | None:
+def user_prompt_timeframe(file_dir) -> "list[str] | None":
     """Ask wether to use user_prompt_log_timeframe().
     Returns compiled lines within that timeframe, if yes, None if user quits or says no.
     """
@@ -889,7 +889,7 @@ def user_prompt_timeframe(file_dir) -> list[str] | None:
             return None
 
 
-def user_prompt_log_timeframe(combat_log) -> list[str] | None:
+def user_prompt_log_timeframe(combat_log) -> "list[str] | None":
     """Turn a given path to a valid combat.log into a lines list within a certain timeframe given by input.
     Returns that list. If user quits early, returns None.
     """
@@ -949,7 +949,7 @@ def user_prompt_log_timeframe(combat_log) -> list[str] | None:
     return compiled_lines
 
 
-def user_prompt_validate_date() -> (int|None):
+def user_prompt_validate_date() -> "int|None":
     """Asks for user input to obtain a date in DD MM YYYY HOUR MIN SECOND format.
     Returns seconds since epoch, local timezone. Returns None if user quits early.
     """
@@ -1008,7 +1008,7 @@ Valid characters: - | _''')
     return time_test
 
 
-def horizontal_bar_plot(container, title='unknowntitle', x_label='unknownlabel', y_limit=30, color='royalblue', filename='unknown.png') -> ( str | None ):
+def horizontal_bar_plot(container, title='unknowntitle', x_label='unknownlabel', y_limit=30, color='royalblue', filename='unknown.png') -> "str | None":
     """Create simple horizontal bar graphs. Excepted dictionary is a simple one, format {player : int, player : int, ...}.
     Will return filename that was saved to CWD, or None if container is empty.
     """
@@ -1053,7 +1053,7 @@ def horizontal_bar_plot(container, title='unknowntitle', x_label='unknownlabel',
 
 
 def stacked_horizontal_bar_plot(dict1, dict2, title='unknowntitle', x_label='unknownlabel', y_limit=30,
-color1='royalblue', color2='tab:green', filename='Received Damage.png', dict1_name='Received Damage', dict2_name='Self-Healing') -> ( str | None ):
+color1='royalblue', color2='tab:green', filename='Received Damage.png', dict1_name='Received Damage', dict2_name='Self-Healing') -> "str | None":
     """Create two bars stacked ontop of eachother per player. Will return filename that was saved to CWD, or None if dict1 is empty.
     Expected dictionaries are simple {player:int,player:int,...}. dict2 will be ontop of dict1.
     """
@@ -1106,7 +1106,7 @@ color1='royalblue', color2='tab:green', filename='Received Damage.png', dict1_na
     return filename
 
 
-def complex_song_plot(container, buff_or_debuff:bool, title='unknowntitle', y_label='unknownlabel', filename='Songchart.png', y_limit=20) -> ( str | None ):
+def complex_song_plot(container, buff_or_debuff:bool, title='unknowntitle', y_label='unknownlabel', filename='Songchart.png', y_limit=20) -> "str | None":
     """Create 'complex' songchart. Will return filename that was saved to CWD, or None if container is empty.
     buff_or_debuff == True for buff, False for debuff.
     """
@@ -1182,7 +1182,7 @@ def complex_song_plot(container, buff_or_debuff:bool, title='unknowntitle', y_la
     return filename
 
 
-def move_to_folder(files_to_move: list, folder: str) -> (str | None):
+def move_to_folder(files_to_move: list, folder: str) -> "str | None":
     """Move list of files in first argument to folder in second argument, both always relative to CWD
     
     A numbered subfolder will be created inside the chosen folder if the folder already contains the requested files.
@@ -1221,7 +1221,7 @@ def move_to_folder(files_to_move: list, folder: str) -> (str | None):
     return str(n)
 
 
-def user_prompt_file() -> (str | None):
+def user_prompt_file() -> "str | None":
     """Prompts user for file to use.
     
     Returns the absolute directory of the location of the prompted combat.log. If nothing picked, return None.
