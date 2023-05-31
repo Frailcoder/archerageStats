@@ -17,7 +17,7 @@ archerageStats is a program that reads the game's logs to make graphs in similar
 
 ## Usage
 
-Releases will include an .exe file bundled with all dependencies. Open the executable and follow the prompts. There is little customization, it only requires a combat.log file usually found in `C:\Users\<your user>\Documents\ArcheRage`
+[Releases](https://github.com/Frailcoder/archerageStats/releases) will include an .exe file bundled with all dependencies. Open the executable and follow the prompts. There is little customization, it only requires a combat.log file usually found in `C:\Users\<your user>\Documents\ArcheRage`
 
 Alternatively, running the source archerageStats.py with the dependencies on your computer will be equivalent.
 
