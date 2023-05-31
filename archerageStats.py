@@ -248,8 +248,11 @@ def user_prompt_log_builder():
         return None
 
     copy_user_file = user_prompt_copy_log("combat.log")
-
-    user_file_lines = user_prompt_timeframe(user_file)
+    try:
+        user_file_lines = user_prompt_timeframe(user_file)
+    except:
+        recoverable_error_print()
+        return None
     if user_file_lines is not None:
         user_file_chosen = user_file_lines
     else:
@@ -262,17 +265,16 @@ def user_prompt_log_builder():
     try:
         log_stats = main_log_builder(user_file_chosen)
     except:
-        log_stats = None
-        error_traceback_print()
+        recoverable_error_print()
+        return None
     
     if not copy_user_file:
         user_file = None
     
-    if log_stats is not None:
-        generate_output(log_stats, perf_counter_start=perf_counter_start, user_file=user_file,
-            custom_text_field=custom_text_field)
+    generate_output(log_stats, perf_counter_start=perf_counter_start, user_file=user_file,
+        custom_text_field=custom_text_field)
 
-        user_prompt_dynamic_create_plot(log_stats)
+    user_prompt_dynamic_create_plot(log_stats)
 
 
 def main_log_builder(input_lines) -> LogStats:
@@ -287,13 +289,9 @@ def main_log_builder(input_lines) -> LogStats:
     # combat.log timestamps are in MM/DD/YY client's system time
     log_start_time = 0
     log_end_time = 0
-    if 'BackupNameAttachment="' in input_lines[0]:
-        log_start_time = int(time.mktime(time.strptime(input_lines[1][1:18],'%m/%d/%y %H:%M:%S')))
-        i_start = 1 # 
-    else:
-        log_start_time = int(time.mktime(time.strptime(input_lines[0][1:18],'%m/%d/%y %H:%M:%S')))
-        i_start = 0
-    log_end_time = int(time.mktime(time.strptime(input_lines[-1][1:18],'%m/%d/%y %H:%M:%S')))
+    i_start, i_end = find_combat_log_lines_indexes(input_lines)
+    log_start_time = int(time.mktime(time.strptime(input_lines[i_start][1:18],'%m/%d/%y %H:%M:%S')))
+    log_end_time = int(time.mktime(time.strptime(input_lines[i_end][1:18],'%m/%d/%y %H:%M:%S')))
 
     if log_start_time > log_end_time:
         raise ValueError("Combat.log's last line has a timestamp earlier than its first line. Is the file edited manually?\n start: %s | end: %s"
@@ -417,19 +415,19 @@ def main_log_builder(input_lines) -> LogStats:
 
     language_check(input_lines[i_start])
 
-    n = i_start
-    while n < len(input_lines):
+    i = i_start
+    while i <= i_end:
         try:
             if lang_current_str == "EN":
-                sort_log_events_EN(input_lines[n])
+                sort_log_events_EN(input_lines[i])
             elif lang_current_str == "RU":
-                sort_log_events_RU(input_lines[n])
+                sort_log_events_RU(input_lines[i])
         
         except(ValueError):
-            language_check(input_lines[n])
+            language_check(input_lines[i])
         
         else:
-            n += 1
+            i += 1
 
     def sort_dmg_event(event_list) -> "tuple[dict, dict]":
         """Sorts events as given by event_list, obtained from sort_log_events()'s dmg_event.
@@ -690,20 +688,19 @@ def user_prompt_regenerate_logstats():
             copy_user_file = user_prompt_copy_log("output.txt")
             if not copy_user_file:
                 user_file = None
-            else:
-                print('Please indicate custom text to add to the final output.txt')
-                custom_text_field = input()
+
+            print('Please indicate custom text to add to the final output.txt')
+            custom_text_field = input()
             
             perf_counter_start = time.perf_counter()
             try:
                 log_stats = regenerate_logstats(input_lines)
             except:
-                log_stats = None
-                error_traceback_print()
+                recoverable_error_print()
+                return None
             
-            if log_stats is not None:
-                generate_output(log_stats, perf_counter_start=perf_counter_start, write_output=False,
-                    user_file=user_file, custom_text_field=custom_text_field)
+            generate_output(log_stats, perf_counter_start=perf_counter_start, write_output=False,
+                user_file=user_file, custom_text_field=custom_text_field)
            
             break
         elif user_input == "n" or user_input == "q":
@@ -711,14 +708,13 @@ def user_prompt_regenerate_logstats():
             try:
                 log_stats = regenerate_logstats(input_lines)
             except:
-                log_stats = None
-                error_traceback_print()
+                recoverable_error_print()
+                return None
             break
         else:
             print("Unknown command. Type (Y) for Yes or (N) for No.")
 
-    if log_stats is not None:
-        user_prompt_dynamic_create_plot(log_stats)
+    user_prompt_dynamic_create_plot(log_stats)
 
 
 def regenerate_logstats(lines) -> LogStats:
@@ -896,9 +892,12 @@ def user_prompt_log_timeframe(combat_log) -> "list[str] | None":
     with open(combat_log, 'r', encoding='utf-8') as f:
         lines = f.readlines()
     # format: [12/31/99 19:09:57] len = 19
-    start_timestamp = lines[1][4:7] + lines[1][1:4] + lines[1][7:18]
+
+    i_start, i_end = find_combat_log_lines_indexes(lines)
+    
+    start_timestamp = lines[i_start][4:7] + lines[i_start][1:4] + lines[i_start][7:18]
     start_timestamp_epoch = int(time.mktime(time.strptime(start_timestamp, r'%d/%m/%y %H:%M:%S')))
-    end_timestamp = lines[-1][4:7] + lines[-1][1:4] + lines[-1][7:18]
+    end_timestamp = lines[i_end][4:7] + lines[i_end][1:4] + lines[i_end][7:18]
     end_timestamp_epoch = int(time.mktime(time.strptime(end_timestamp, r'%d/%m/%y %H:%M:%S')))
 
     print('-----\nStart timestamp: %s\nEnd timestamp: %s\n-----\n(dd/mm/yy)' % (start_timestamp, end_timestamp))
@@ -933,19 +932,19 @@ def user_prompt_log_timeframe(combat_log) -> "list[str] | None":
         else:
             return recursive_return
 
-    for n in range(len(lines) - 1, 0, -1):
+    for n in range(i_end, i_start, -1):
         if int(time.mktime(time.strptime(lines[n][1:18], r'%m/%d/%y %H:%M:%S'))) <= end_date:
             end_index = n
             break
 
-    for n in range(1, len(lines)):
+    for n in range(i_start, i_end):
         if int(time.mktime(time.strptime(lines[n][1:18], r'%m/%d/%y %H:%M:%S'))) >= start_date:
             start_index = n
             break
     
     compiled_lines = []
     compiled_lines.append(lines[0])
-    compiled_lines += lines[start_index : end_index+1]
+    compiled_lines += lines[start_index : end_index + 1]
     return compiled_lines
 
 
@@ -1365,13 +1364,42 @@ def fix_dict_formatting(line) -> dict:
     return line
 
 
-def error_traceback_print():
+def recoverable_error_print():
     """Print error using traceback.print_exception()"""
     traceback.print_exception(sys.exception(), file=sys.stdout)
-    print("Script recovered from error\n")
+    print("\nScript recovered from error\n")
 
+
+def find_combat_log_lines_indexes(lines:"list[str]") -> "tuple[int, int]":
+    """Returns the indexes of where the combat.log starts in the given array and where it ends."""
+
+    try:
+        i = 0
+        while True:
+            if lines[i][0] == "[" and lines[i][3] == "/":
+                i_start = i
+                break
+            else:
+                i += 1
+                continue
+
+        i = -1
+        while True:
+            if lines[i][0] == "[" and lines[i][3] == "/":
+                i_end = len(lines) - -i
+                break
+            else:
+                i = i - 1
+        
+        return i_start, i_end
+    except (IndexError):
+        raise IndexError("Could not find any lines that match format of a combat.log. Index num: %s" % (i))
 
 ############################## module end
 
-
-user_prompt_main()
+try:
+    user_prompt_main()
+except:
+    traceback.print_exception(sys.exception(), file=sys.stdout)
+    print("\nUnrecoverable error. Press enter to exit.")
+    input()
