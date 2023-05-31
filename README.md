@@ -46,7 +46,7 @@ Previous session logs are stored in LogBackups. This requires enabling combat nu
 
 ### License
 
-This works is used under the MIT license.
+This work is used under the MIT license.
 
 ### Closing statement
 
