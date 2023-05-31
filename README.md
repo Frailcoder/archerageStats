@@ -42,6 +42,7 @@ Previous session logs are stored in LogBackups. This requires enabling combat nu
 - regex module: https://github.com/mrabarnett/mrab-regex (PYPI: https://pypi.org/project/regex/)
 - matplotlib module: https://matplotlib.org/stable/index.html (PYPI: https://pypi.org/project/matplotlib/)
 - Python 3.7.9 or later, preferably 3.11
+- pyinstaller only if you wish to make your own .exe: https://pyinstaller.org/en/stable/ (PYPI: https://pypi.org/project/pyinstaller/)
 
 ### License
 
