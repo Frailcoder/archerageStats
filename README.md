@@ -35,7 +35,7 @@ Previous session logs are stored in LogBackups. This requires enabling combat nu
 
 - Windows
 - ArcheRage logs from version 7.5.3 (may or may not work from differing versions)
-- If using the archerageStats.py file directly, Python 3.6 or later and dependencies.
+- If using the archerageStats.py file directly, Python 3.7.9 or later and dependencies.
 
 ### Dependencies
 
